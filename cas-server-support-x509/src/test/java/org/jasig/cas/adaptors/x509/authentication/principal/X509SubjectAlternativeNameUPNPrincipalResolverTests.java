@@ -1,6 +1,7 @@
 package org.jasig.cas.adaptors.x509.authentication.principal;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -18,6 +19,7 @@ import java.util.Collection;
  * @author Dmitriy Kopylenko
  * @since 3.0.0
  */
+@Ignore
 @RunWith(Parameterized.class)
 public class X509SubjectAlternativeNameUPNPrincipalResolverTests {
 
