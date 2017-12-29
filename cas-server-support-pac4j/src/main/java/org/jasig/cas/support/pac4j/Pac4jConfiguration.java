@@ -12,13 +12,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+
 
 /**
  * Initializes the pac4j configuration.
@@ -39,7 +40,7 @@ public class Pac4jConfiguration {
     private Properties casProperties;
 
     @Autowired(required = false)
-    private IndirectClient[] clients;
+    private Set<IndirectClient> clients;
 
     /**
      * Returning the built clients.
@@ -65,14 +66,19 @@ public class Pac4jConfiguration {
         allClients.addAll(propertiesConfig.getClients().getClients());
 
         // add all indirect clients from the Spring context
-        if (clients != null && clients.length > 0) {
-            allClients.addAll(Arrays.<Client>asList(clients));
+        if (clients != null && clients.size() > 0) {
+            for (final IndirectClient indirectClient : clients) {
+                if (indirectClient != null) {
+                    allClients.add(indirectClient);
+                }
+            }
+
         }
 
         // build a Clients configuration
-        if (allClients.isEmpty()) {
-            throw new IllegalArgumentException("At least one pac4j client must be defined");
-        }
+        //if (allClients.isEmpty()) {
+        //    throw new IllegalArgumentException("At least one pac4j client must be defined");
+        //}
         return new Clients(serverLoginUrl, allClients);
     }
 }

@@ -1,6 +1,6 @@
 package org.jasig.cas.ticket.registry;
 
-import java.util.Collection;
+
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
@@ -30,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.jasig.cas.web.support.WebUtils;
-import org.jasig.cas.logout.LogoutManager;
+
 
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
@@ -45,10 +47,7 @@ import com.google.common.collect.Collections2;
 public class TicketRegistryCleaner implements Job {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("logoutManager")
-    private LogoutManager logoutManager;
-    
+
     @Autowired(required = false)
     @Qualifier("scheduler")
     private Scheduler scheduler;
@@ -59,6 +58,9 @@ public class TicketRegistryCleaner implements Job {
     @Value("${ticket.registry.cleaner.startdelay:20}")
     private int startDelay;
 
+    @Autowired(required = false)
+    @Qualifier("centralAuthenticationService")
+    private CentralAuthenticationService centralAuthenticationService;
     @Autowired
     @NotNull
     private ApplicationContext applicationContext;
@@ -66,7 +68,8 @@ public class TicketRegistryCleaner implements Job {
     /**
      * Instantiates a new Ticket registry cleaner.
      */
-    public TicketRegistryCleaner() { }
+    public TicketRegistryCleaner() {
+    }
 
     /**
      * Schedule reloader job.
@@ -80,6 +83,7 @@ public class TicketRegistryCleaner implements Job {
                 final JobDetail job = JobBuilder.newJob(getClass())
                         .withIdentity(getClass().getSimpleName().concat(UUID.randomUUID().toString()))
                         .build();
+
 
                 final Trigger trigger = TriggerBuilder.newTrigger()
                         .withIdentity(getClass().getSimpleName().concat(UUID.randomUUID().toString()))
@@ -98,7 +102,7 @@ public class TicketRegistryCleaner implements Job {
             } else {
                 logger.info("Ticket registry cleaner job will not be scheduled to run.");
             }
-        } catch (final Exception e){
+        } catch (final Exception e) {
             logger.warn(e.getMessage(), e);
         }
 
@@ -113,34 +117,28 @@ public class TicketRegistryCleaner implements Job {
             final TicketRegistry registry = (TicketRegistry)
                     jobExecutionContext.getScheduler().getContext().get(getClass().getSimpleName());
             logger.debug("Cleaning up tickets from an instance of {}", registry);
+            final MutableInt mutableInt = new MutableInt();
 
-            final Collection<Integer> deletedTicketCounts = Collections2.transform(registry.getTickets(), new Function<Ticket, Integer>() {
+            Collections2.transform(registry.getTickets(), new Function<Ticket, Integer>() {
                 @Override
                 public Integer apply(@Nullable final Ticket ticket) {
-                    int count = 0;
-
                     if (ticket != null && ticket.isExpired()) {
                         if (ticket instanceof TicketGrantingTicket) {
-                            logger.debug("Cleaning up expired ticket-granting ticket [{}]", ticket.getId());
-                            logoutManager.performLogout((TicketGrantingTicket) ticket);
-                            count += registry.deleteTicket(ticket.getId());
+                            centralAuthenticationService.destroyTicketGrantingTicket(ticket.getId());
+                            mutableInt.add(1);
                         } else if (ticket instanceof ServiceTicket) {
                             logger.debug("Cleaning up expired service ticket [{}]", ticket.getId());
-                            count += registry.deleteTicket(ticket.getId());
+                            mutableInt.add(registry.deleteTicket(ticket.getId()));
                         } else {
                             logger.warn("Unknown ticket type [{} found to clean", ticket.getClass().getSimpleName());
                         }
                     }
-                    return count;
+                    return 1;
                 }
             });
-            
-            int cumulativeCount = 0;
-            for (final int count : deletedTicketCounts) {
-                cumulativeCount += count;
-            }
-            
-            logger.info("{} expired tickets found and removed.", cumulativeCount);
+
+
+            logger.info("{} expired tickets found and removed.", mutableInt.intValue());
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
         }

@@ -7,6 +7,7 @@ import org.jasig.cas.authentication.UsernamePasswordCredential;
 import org.jasig.inspektr.common.web.ClientInfo;
 import org.jasig.inspektr.common.web.ClientInfoHolder;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,7 @@ import static org.junit.Assert.*;
         "classpath:/jpaTestApplicationContext.xml",
         "classpath:/inspektrThrottledSubmissionContext.xml"
 })
+@Ignore
 public class InspektrThrottledSubmissionByIpAddressAndUsernameHandlerInterceptorAdapterTests extends
                 AbstractThrottledSubmissionHandlerInterceptorAdapterTests {
 

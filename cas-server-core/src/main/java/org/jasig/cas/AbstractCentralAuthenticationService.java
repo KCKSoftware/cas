@@ -17,6 +17,7 @@ import org.jasig.cas.services.ServiceContext;
 import org.jasig.cas.services.ServicesManager;
 import org.jasig.cas.services.UnauthorizedProxyingException;
 import org.jasig.cas.services.UnauthorizedServiceException;
+import org.jasig.cas.support.events.CasTicketGrantingTicketDestroyedEvent;
 import org.jasig.cas.ticket.AbstractTicketException;
 import org.jasig.cas.ticket.InvalidTicketException;
 import org.jasig.cas.ticket.Ticket;
@@ -51,7 +52,7 @@ import java.util.Iterator;
  * @since 4.2.0
  */
 public abstract class AbstractCentralAuthenticationService implements CentralAuthenticationService, Serializable,
-                                                                      ApplicationEventPublisherAware {
+        ApplicationEventPublisherAware {
 
     private static final long serialVersionUID = -7572316677901391166L;
 
@@ -143,8 +144,7 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
      * @param principalFactory the principal factory
      */
     @Autowired
-    public final void setPrincipalFactory(@Qualifier("principalFactory")
-                                          final PrincipalFactory principalFactory) {
+    public final void setPrincipalFactory(@Qualifier("principalFactory") final PrincipalFactory principalFactory) {
         this.principalFactory = principalFactory;
     }
 
@@ -185,7 +185,9 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
         if (ticket instanceof TicketGrantingTicket) {
             synchronized (ticket) {
                 if (ticket.isExpired()) {
+                    logoutManager.performLogout((TicketGrantingTicket) ticket);
                     this.ticketRegistry.deleteTicket(ticketId);
+                    doPublishEvent(new CasTicketGrantingTicketDestroyedEvent(this, (TicketGrantingTicket) ticket));
                     logger.debug("Ticket [{}] has expired and is now deleted from the ticket registry.", ticketId);
                     throw new InvalidTicketException(ticketId);
                 }

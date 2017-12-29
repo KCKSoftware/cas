@@ -6,6 +6,7 @@ import org.jasig.cas.authentication.principal.ShibbolethCompatiblePersistentIdGe
 import org.jasig.cas.services.support.RegisteredServiceRegexAttributeFilter;
 import org.joda.time.DateTime;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
@@ -25,6 +26,7 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 4.1.0
  */
+@Ignore
 public class JsonServiceRegistryDaoTests {
 
     private static final ClassPathResource RESOURCE = new ClassPathResource("services");

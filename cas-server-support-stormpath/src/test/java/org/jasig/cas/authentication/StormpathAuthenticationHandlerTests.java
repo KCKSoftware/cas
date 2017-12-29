@@ -1,5 +1,6 @@
 package org.jasig.cas.authentication;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/stormpath-context.xml")
+@Ignore
 public class StormpathAuthenticationHandlerTests {
     @Autowired
     @Qualifier("stormpathAuthenticationHandler")

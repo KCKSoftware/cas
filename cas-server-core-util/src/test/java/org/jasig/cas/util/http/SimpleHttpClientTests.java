@@ -2,6 +2,7 @@ package org.jasig.cas.util.http;
 
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
@@ -40,6 +41,7 @@ public class SimpleHttpClientTests  {
     }
 
     @Test
+    @Ignore
     public void verifyBypassedInvalidHttpsUrl() throws Exception {
         final SimpleHttpClientFactoryBean clientFactory = new SimpleHttpClientFactoryBean();
         clientFactory.setSslSocketFactory(getFriendlyToAllSSLSocketFactory());

@@ -66,7 +66,7 @@ public class ServiceTicketImpl extends AbstractTicket implements ServiceTicket {
      * Service are null.
      */
     public ServiceTicketImpl(final String id,
-        @NotNull final TicketGrantingTicketImpl ticket, @NotNull final Service service,
+        @NotNull final TicketGrantingTicket ticket, @NotNull final Service service,
         final boolean fromNewLogin, final ExpirationPolicy policy) {
         super(id, ticket, policy);
 

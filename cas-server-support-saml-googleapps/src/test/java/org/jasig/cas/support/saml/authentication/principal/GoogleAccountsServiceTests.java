@@ -12,6 +12,7 @@ import org.jasig.cas.util.CompressionUtils;
 import org.jasig.cas.util.ISOStandardDateFormat;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.*;
  * @author Scott Battaglia
  * @since 3.1
  */
+@Ignore
 public class GoogleAccountsServiceTests extends AbstractOpenSamlTests {
 
     @Autowired

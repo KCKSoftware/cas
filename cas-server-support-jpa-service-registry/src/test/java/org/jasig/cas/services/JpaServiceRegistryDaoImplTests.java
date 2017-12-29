@@ -5,6 +5,7 @@ import org.jasig.cas.support.oauth.services.OAuthCallbackAuthorizeService;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredCallbackAuthorizeService;
 import org.jasig.cas.support.oauth.services.OAuthRegisteredService;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -22,6 +23,7 @@ import static org.junit.Assert.*;
  * @author battags
  * @since 3.1.0
  */
+@Ignore
 public class JpaServiceRegistryDaoImplTests  {
 
     private ServiceRegistryDao  dao;
