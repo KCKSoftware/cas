@@ -2,6 +2,7 @@ package org.jasig.cas.adaptors.generic;
 
 import org.jasig.cas.authentication.RememberMeUsernamePasswordCredential;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
@@ -15,6 +16,7 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 4.2
  */
+@Ignore
 public class ShiroAuthenticationHandlerTests {
 
     @Test
