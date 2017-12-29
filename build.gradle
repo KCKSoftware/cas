@@ -5,8 +5,10 @@ defaultTasks "clean", "build"
 ext {
     publishSnapshots = Boolean.getBoolean("publishSnapshots")
     publishReleases = Boolean.getBoolean("publishReleases")
-    sonatypeUsername = System.getProperty("sonatypeUsername")
-    sonatypePassword = System.getProperty("sonatypePassword")
+    mavenRepositoryReleaseUrl = System.getProperty("mavenRepositoryReleaseUrl")
+    mavenRepositorySnapshotUrl = System.getProperty("mavenRepositorySnapshotUrl")
+    mavenRepositoryUsername = System.getProperty("mavenRepositoryUsername")
+    mavenRepositoryPassword = System.getProperty("mavenRepositoryPassword")
 }
 
 buildscript {
@@ -106,7 +108,7 @@ subprojects {
     }
 
     signing {
-        required = (publishReleases && sonatypeUsername != null && sonatypePassword != null)
+        required = (publishReleases && mavenRepositoryUsername != null && mavenRepositoryPassword != null && false)
         sign configurations.archives
     }
 
@@ -199,17 +201,17 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+//                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
                 if (publishReleases) {
-                    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                        authentication(userName: sonatypeUsername, password: sonatypePassword);
+                    repository(url: mavenRepositoryReleaseUrl) {
+                        authentication(userName: mavenRepositoryUsername, password: mavenRepositoryPassword);
                     }
                 }
 
                 if (publishSnapshots) {
-                    snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                        authentication(userName: sonatypeUsername, password: sonatypePassword);
+                    snapshotRepository(url: mavenRepositorySnapshotUrl) {
+                        authentication(userName: mavenRepositoryUsername, password: mavenRepositoryPassword);
                     }
                 }
 
@@ -220,13 +222,13 @@ subprojects {
                     description project.name
                     issueManagement {
                         system "Github"
-                        url "https://github.com/Jasig/cas/issues"
+                        url "https://github.com/KCKSoftware/cas/issues"
                     }
 
                     scm {
-                        url 'scm:git@github.com:Jasig/cas.git'
-                        connection 'scm:git@github.com:Jasig/cas.git'
-                        developerConnection 'scm:git@github.com:Jasig/cas.git'
+                        url 'scm:git@github.com:KCKSoftware/cas.git'
+                        connection 'scm:git@github.com:KCKSoftware/cas.git'
+                        developerConnection 'scm:git@github.com:KCKSoftware/cas.git'
                     }
 
                     licenses {
