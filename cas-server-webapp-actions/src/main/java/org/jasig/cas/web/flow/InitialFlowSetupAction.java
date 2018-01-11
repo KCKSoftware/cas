@@ -68,7 +68,8 @@ public final class InitialFlowSetupAction extends AbstractAction {
         final HttpServletRequest request = WebUtils.getHttpServletRequest(context);
 
         final String contextPath = context.getExternalContext().getContextPath();
-        final String cookiePath = StringUtils.isNotBlank(contextPath) ? contextPath + '/' : "/";
+        final String cookiePath=contextPath;
+        //        final String cookiePath = StringUtils.isNotBlank(contextPath) ? contextPath + '/' : "/";
 
         if (StringUtils.isBlank(warnCookieGenerator.getCookiePath())) {
             logger.info("Setting path for cookies for warn cookie generator to: {} ", cookiePath);
