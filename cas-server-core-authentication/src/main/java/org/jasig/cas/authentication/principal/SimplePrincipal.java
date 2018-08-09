@@ -69,7 +69,7 @@ public final class SimplePrincipal implements Principal {
     @Override
     public int hashCode() {
         final HashCodeBuilder builder = new HashCodeBuilder(83, 31);
-        builder.append(this.id.toLowerCase());
+        builder.append(StringUtils.lowerCase(this.id));
         return builder.toHashCode();
     }
 
