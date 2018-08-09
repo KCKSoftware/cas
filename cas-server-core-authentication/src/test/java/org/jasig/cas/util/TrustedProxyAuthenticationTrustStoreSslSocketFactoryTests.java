@@ -4,6 +4,7 @@ import org.jasig.cas.authentication.FileTrustStoreSslSocketFactory;
 import org.jasig.cas.util.http.HttpClient;
 import org.jasig.cas.util.http.SimpleHttpClientFactoryBean;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
@@ -13,6 +14,7 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 4.1.0
  */
+@Ignore
 public class TrustedProxyAuthenticationTrustStoreSslSocketFactoryTests {
     private static final ClassPathResource TRUST_STORE = new ClassPathResource("truststore.jks");
     private static final String TRUST_STORE_PSW = "changeit";
