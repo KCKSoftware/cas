@@ -4,6 +4,7 @@ dependencies {
     compile(group: 'org.apache.ignite', name: 'ignite-log4j', version:igniteVersion)
     compile(group: 'org.apache.ignite', name: 'ignite-spring', version:igniteVersion) {
         exclude(group: 'commons-logging', module: 'commons-logging')
+        exclude(group: 'commons-codec', module: 'commons-codec')
         exclude(group: 'org.springframework', module: 'spring-core')
         exclude(group: 'org.springframework', module: 'spring-beans')
         exclude(group: 'org.springframework', module: 'spring-context')

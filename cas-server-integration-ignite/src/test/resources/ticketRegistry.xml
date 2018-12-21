@@ -12,40 +12,6 @@
         http://www.springframework.org/schema/util
         http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <context:property-placeholder location="cas.properties" ignore-resource-not-found="true" />
-
-    <bean id="igniteTicketRegistry" class="org.jasig.cas.ticket.registry.IgniteTicketRegistry"
-      p:igniteConfiguration-ref="igniteConfiguration" />
-
-    <bean id="igniteConfiguration" class="org.apache.ignite.configuration.IgniteConfiguration">
-        <property name="discoverySpi">
-            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
-                <property name="ipFinder">
-                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder" p:addresses-ref="igniteAddresses" />
-                </property>
-            </bean>
-        </property>
-
-        <property name="cacheConfiguration">
-            <list>
-                <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                    <property name="name" value="serviceTicketsCache"/>
-                    <property name="cacheMode" value="REPLICATED"/>
-                    <property name="atomicityMode" value="TRANSACTIONAL"/>
-                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
-                </bean>
-
-                <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                    <property name="name" value="ticketGrantingTicketsCache"/>
-                    <property name="cacheMode" value="REPLICATED"/>
-                    <property name="atomicityMode" value="TRANSACTIONAL"/>
-                    <property name="writeSynchronizationMode" value="FULL_SYNC"/>
-                </bean>
-            </list>
-        </property>
-    </bean>
-
-    <bean id="igniteAddresses" class="org.springframework.util.StringUtils" factory-method="commaDelimitedListToStringArray">
-        <constructor-arg type="java.lang.String" value="localhost:47500"/>
-    </bean>
+    <context:property-placeholder location="cas.properties" ignore-resource-not-found="true"/>
+    <import resource="classpath:META-INF/spring/ignite-ticket-registry.xml"/>
 </beans>

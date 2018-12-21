@@ -5,46 +5,60 @@
        xmlns:c="http://www.springframework.org/schema/c"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:util="http://www.springframework.org/schema/util"
-       xmlns:sec="http://www.springframework.org/schema/security"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://www.springframework.org/schema/context
-       http://www.springframework.org/schema/context/spring-context.xsd
-       http://www.springframework.org/schema/tx
-       http://www.springframework.org/schema/tx/spring-tx.xsd
-       http://www.springframework.org/schema/security
-       http://www.springframework.org/schema/security/spring-security.xsd
-       http://www.springframework.org/schema/util
-       http://www.springframework.org/schema/util/spring-util.xsd">
-    <bean id="igniteConfiguration" class="org.apache.ignite.configuration.IgniteConfiguration">
-        <property name="discoverySpi">
-            <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
-                <property name="ipFinder">
-                    <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder" p:addresses-ref="igniteAddresses" />
-                </property>
-            </bean>
-        </property>
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-        <property name="cacheConfiguration">
-            <list>
-                <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                    <property name="name" value="${ignite.servicesCache.name:serviceTicketsCache}"/>
-                    <property name="cacheMode" value="${ignite.servicesCache.cacheMode:REPLICATED}"/>
-                    <property name="atomicityMode" value="${ignite.servicesCache.atomicityMode:TRANSACTIONAL}"/>
-                    <property name="writeSynchronizationMode" value="${ignite.servicesCache.writeSynchronizationMode:FULL_SYNC}"/>
-                </bean>
 
-                <bean class="org.apache.ignite.configuration.CacheConfiguration">
-                    <property name="name" value="${ignite.ticketsCache.name:ticketGrantingTicketsCache}"/>
-                    <property name="cacheMode" value="${ignite.ticketsCache.cacheMode:REPLICATED}"/>
-                    <property name="atomicityMode" value="${ignite.ticketsCache.atomicityMode:TRANSACTIONAL}"/>
-                    <property name="writeSynchronizationMode" value="${ignite.ticketsCache.writeSynchronizationMode:FULL_SYNC}"/>
-                </bean>
-            </list>
+    <bean id="igniteCommunicationSpi" class="org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi">
+        <property name="localPort" value="${ignite.communicationSpiPort:47100}"/>
+    </bean>
+    <bean id="igniteDiscoverySpi" class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">
+        <property name="ipFinder">
+            <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder"
+                  p:addresses-ref="igniteAddresses"/>
         </property>
+        <property name="joinTimeout" value="20000"/>
+        <property name="localPort" value="${ignite.localPort:47500}"/>
+        <property name="localPortRange" value="1"/>
+
     </bean>
 
-    <bean id="igniteAddresses" class="org.springframework.util.StringUtils" factory-method="commaDelimitedListToStringArray">
+    <util:list id="igniteCacheConfiguration" value-type="org.apache.ignite.configuration.CacheConfiguration">
+        <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <property name="name" value="${ignite.servicesCache.name:serviceTicketsCache}"/>
+            <property name="cacheMode" value="${ignite.servicesCache.cacheMode:REPLICATED}"/>
+            <property name="atomicityMode" value="${ignite.servicesCache.atomicityMode:TRANSACTIONAL}"/>
+            <property name="writeSynchronizationMode"
+                      value="${ignite.servicesCache.writeSynchronizationMode:FULL_SYNC}"/>
+            <property name="expiryPolicyFactory">
+                <!--TODO duplicate-->
+                <bean class="javax.cache.expiry.CreatedExpiryPolicy" factory-method="factoryOf">
+                    <constructor-arg>
+                        <bean class="javax.cache.expiry.Duration">
+                            <constructor-arg value="SECONDS"/>
+                            <constructor-arg value="${st.timeToKillInSeconds:10}"/>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+            </property>
+        </bean>
+
+        <bean class="org.apache.ignite.configuration.CacheConfiguration">
+            <property name="name" value="${ignite.ticketsCache.name:ticketGrantingTicketsCache}"/>
+            <property name="cacheMode" value="${ignite.ticketsCache.cacheMode:REPLICATED}"/>
+            <property name="atomicityMode" value="${ignite.ticketsCache.atomicityMode:TRANSACTIONAL}"/>
+            <property name="writeSynchronizationMode"
+                      value="${ignite.ticketsCache.writeSynchronizationMode:FULL_SYNC}"/>
+        </bean>
+    </util:list>
+    <bean id="igniteAddresses" class="org.springframework.util.StringUtils"
+          factory-method="commaDelimitedListToStringArray">
         <constructor-arg type="java.lang.String" value="${ignite.adresses:localhost:47500}"/>
     </bean>
+    <bean class="org.jasig.cas.ticket.registry.CasIgniteConfiguration"/>
+    <bean id ="igniteTicketRegistry" class="org.jasig.cas.ticket.registry.IgniteTicketRegistry"/>
 </beans>

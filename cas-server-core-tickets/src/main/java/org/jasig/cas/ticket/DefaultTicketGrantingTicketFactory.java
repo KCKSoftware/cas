@@ -1,12 +1,15 @@
 package org.jasig.cas.ticket;
 
 import org.jasig.cas.authentication.Authentication;
+import org.jasig.cas.authentication.CredentialMetaData;
+import org.jasig.cas.authentication.principal.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * The {@link DefaultTicketGrantingTicketFactory} is responsible
@@ -25,19 +28,31 @@ public class DefaultTicketGrantingTicketFactory implements TicketGrantingTicketF
      * created.
      */
     @NotNull
-    @Resource(name="ticketGrantingTicketUniqueIdGenerator")
+    @Resource(name = "ticketGrantingTicketUniqueIdGenerator")
     protected UniqueTicketIdGenerator ticketGrantingTicketUniqueTicketIdGenerator;
 
-    /** Expiration policy for ticket granting tickets. */
+    /**
+     * Expiration policy for ticket granting tickets.
+     */
     @NotNull
-    @Resource(name="grantingTicketExpirationPolicy")
+    @Resource(name = "grantingTicketExpirationPolicy")
     protected ExpirationPolicy ticketGrantingTicketExpirationPolicy;
 
     @Override
     public <T extends TicketGrantingTicket> T create(final Authentication authentication) {
-        final TicketGrantingTicket ticketGrantingTicket = new TicketGrantingTicketImpl(
+        final TicketGrantingTicketImpl ticketGrantingTicket = new TicketGrantingTicketImpl(
                 this.ticketGrantingTicketUniqueTicketIdGenerator.getNewTicketId(TicketGrantingTicket.PREFIX),
                 authentication, ticketGrantingTicketExpirationPolicy);
+        String externalId = null;
+
+        List<CredentialMetaData> credentials = authentication.getCredentials();
+        if (credentials != null) {
+            for (CredentialMetaData credential : credentials) {
+
+            }
+        }
+
+        ticketGrantingTicket.setExternalId(externalId);
         return (T) ticketGrantingTicket;
     }
 

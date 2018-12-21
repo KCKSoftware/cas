@@ -13,6 +13,7 @@ import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -76,6 +77,12 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
     /** The PGTs associated to this ticket. */
     @OneToMany(targetEntity = TicketGrantingTicketImpl.class, mappedBy = "ticketGrantingTicket", fetch = FetchType.EAGER)
     private Set<ProxyGrantingTicket> proxyGrantingTickets = new HashSet<>();
+
+
+
+    @Id
+    @Column(name="EXTERNAL_ID", nullable=true)
+    private String externalId;
 
     /**
      * Instantiates a new ticket granting ticket impl.
@@ -245,6 +252,15 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
             parent = current.getGrantingTicket();
         }
         return current;
+    }
+
+    @Override
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     /**
