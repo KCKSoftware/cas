@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.jasig.cas.ticket.Ticket;
 import org.jasig.cas.ticket.TicketGrantingTicket;
 
+
 /**
  * Interface for a registry that stores tickets. The underlying registry can be
  * backed by anything from a normal HashMap to JGroups for having distributed
@@ -63,6 +64,10 @@ public interface TicketRegistry {
      */
     Collection<Ticket> getTickets();
 
+    TicketGrantingTicket getTgtByServiceTicket(String serviceTicket);
 
     TicketGrantingTicket getTgtByExternalId(String externalId);
+
+
+
 }

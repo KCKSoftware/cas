@@ -40,7 +40,7 @@
                     <constructor-arg>
                         <bean class="javax.cache.expiry.Duration">
                             <constructor-arg value="SECONDS"/>
-                            <constructor-arg value="${st.timeToKillInSeconds:10}"/>
+                            <constructor-arg value="${st.timeToKillInSeconds:60}"/>
                         </bean>
                     </constructor-arg>
                 </bean>

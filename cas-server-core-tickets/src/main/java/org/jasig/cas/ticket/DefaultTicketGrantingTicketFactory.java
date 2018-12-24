@@ -2,6 +2,7 @@ package org.jasig.cas.ticket;
 
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.CredentialMetaData;
+import org.jasig.cas.authentication.CredentialMetaDataWithExternalId;
 import org.jasig.cas.authentication.principal.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,14 +45,16 @@ public class DefaultTicketGrantingTicketFactory implements TicketGrantingTicketF
                 this.ticketGrantingTicketUniqueTicketIdGenerator.getNewTicketId(TicketGrantingTicket.PREFIX),
                 authentication, ticketGrantingTicketExpirationPolicy);
         String externalId = null;
-
         List<CredentialMetaData> credentials = authentication.getCredentials();
         if (credentials != null) {
             for (CredentialMetaData credential : credentials) {
+                if (credential instanceof CredentialMetaDataWithExternalId) {
+                    externalId = ((CredentialMetaDataWithExternalId) credential).getExternalId();
+                    break;
+                }
 
             }
         }
-
         ticketGrantingTicket.setExternalId(externalId);
         return (T) ticketGrantingTicket;
     }

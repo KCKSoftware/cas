@@ -45,7 +45,12 @@ public class TicketGrantingTicketDelegator<T extends TicketGrantingTicket> exten
     public Service getProxiedBy() {
         return getTicket().getProxiedBy();
     }
-    
+
+    @Override
+    public String getExternalId() {
+        return getTicket().getExternalId();
+    }
+
     @Override
     public List<Authentication> getSupplementalAuthentications() {
         return getTicket().getSupplementalAuthentications();

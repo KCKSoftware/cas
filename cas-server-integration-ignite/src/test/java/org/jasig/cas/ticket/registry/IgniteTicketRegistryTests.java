@@ -168,6 +168,35 @@ public final class IgniteTicketRegistryTests {
     }
 
     @Test
+    public void verifyGetByExternalId() {
+        TicketGrantingTicketImpl ticket = new TicketGrantingTicketImpl("TEST", TestUtils.getAuthentication(),
+                new NeverExpiresExpirationPolicy());
+        String external_id_test = "EXTERNAL_ID_TEST";
+        ticket.setExternalId(external_id_test);
+        this.ticketRegistry.addTicket(ticket);
+        TicketGrantingTicket tgtByExternalId = this.ticketRegistry.getTgtByExternalId(external_id_test);
+        assertNotNull(tgtByExternalId);
+        assertEquals(external_id_test, tgtByExternalId.getExternalId());
+        assertEquals(ticket, tgtByExternalId);
+   }
+
+    @Test
+    public void verifyGetByStId() {
+        TicketGrantingTicketImpl ticket = new TicketGrantingTicketImpl("TEST", TestUtils.getAuthentication(),
+                new NeverExpiresExpirationPolicy());
+        String service_id_test = "service_id_test";
+        ticket.setExternalId(service_id_test);
+        ticket.grantServiceTicket(service_id_test, org.jasig.cas.services.TestUtils.getService(),new NeverExpiresExpirationPolicy(),false,true);
+        this.ticketRegistry.addTicket(ticket);
+        TicketGrantingTicket tgtByStId = this.ticketRegistry.getTgtByServiceTicket(service_id_test);
+        assertNotNull(tgtByStId);
+        assertEquals(service_id_test, tgtByStId.getExternalId());
+        assertEquals(ticket, tgtByStId);
+
+    }
+
+
+    @Test
     public void verifyDeleteNullTicket() {
         try {
             this.ticketRegistry.addTicket(new TicketGrantingTicketImpl("TEST", TestUtils.getAuthentication(),
@@ -189,6 +218,7 @@ public final class IgniteTicketRegistryTests {
             fail("Caught an exception. But no exception should have been thrown.");
         }
     }
+
 
     @Test
     public void verifyGetTicketsFromRegistryEqualToTicketsAdded() {
@@ -275,9 +305,9 @@ public final class IgniteTicketRegistryTests {
 
         final TicketGrantingTicket pgt = st1.grantProxyGrantingTicket("PGT-1", a, new NeverExpiresExpirationPolicy());
         assertEquals(a, pgt.getAuthentication());
-        
+
         assertTrue("TGT and children were deleted", this.ticketRegistry.deleteTicket(tgt.getId()) > 0);
-        
+
         assertNull(this.ticketRegistry.getTicket("TGT", TicketGrantingTicket.class));
         assertNull(this.ticketRegistry.getTicket("ST1", ServiceTicket.class));
         assertNull(this.ticketRegistry.getTicket("PGT-1", ServiceTicket.class));

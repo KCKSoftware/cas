@@ -1,5 +1,6 @@
 package org.jasig.cas.ticket.registry;
 
+import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.registry.encrypt.AbstractCrypticTicketRegistry;
 import org.jasig.cas.ticket.ServiceTicket;
 import org.jasig.cas.ticket.Ticket;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.cache.Cache;
 import javax.validation.constraints.NotNull;
@@ -260,10 +262,48 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
 
     }
 
+
+    private static class ServiceTicketPredicate implements IgniteBiPredicate<String, TicketGrantingTicket>, Serializable {
+        private String serviceTicket;
+
+        private ServiceTicketPredicate(String serviceTicket) {
+            this.serviceTicket = serviceTicket;
+        }
+
+        @Override
+        public boolean apply(String s, TicketGrantingTicket ticketGrantingTicket) {
+            Map<String, Service> services = ticketGrantingTicket.getServices();
+            if (services != null) {
+                return services.get(serviceTicket) != null;
+            }
+            return false;
+        }
+
+    }
+
+    @Override
+    public TicketGrantingTicket getTgtByServiceTicket(String serviceTicket) {
+        if (serviceTicket == null) {
+            throw new NullPointerException("ServiceTicket must be not null");
+        }
+        try (QueryCursor<Cache.Entry<String, TicketGrantingTicket>> queryCursor = ticketGrantingTicketsCache.query(new ScanQuery<>(new ServiceTicketPredicate(serviceTicket)))) {
+            List<Cache.Entry<String, TicketGrantingTicket>> all = queryCursor.getAll();
+            switch (all.size()) {
+                case 0:
+                    return null;
+                case 1:
+                    return all.get(0).getValue();
+                default:
+                    throw new IllegalStateException("Multiple tgt for serviceTicket '" + serviceTicket + "'");
+            }
+        }
+    }
+
+
     @Override
     public TicketGrantingTicket getTgtByExternalId(final String externalId) {
         if (externalId == null) {
-            throw new NullPointerException("externalId must be not null");
+            throw new NullPointerException("ExternalId must be not null");
         }
         try (QueryCursor<Cache.Entry<String, TicketGrantingTicket>> queryCursor = ticketGrantingTicketsCache.query(new ScanQuery<>(new ExternalKeyPredicate(externalId)))) {
             List<Cache.Entry<String, TicketGrantingTicket>> all = queryCursor.getAll();
