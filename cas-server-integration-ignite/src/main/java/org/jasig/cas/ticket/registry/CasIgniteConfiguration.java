@@ -76,7 +76,10 @@ public class CasIgniteConfiguration {
         final IgniteConfiguration igniteConfiguration = igniteConfiguration();
         igniteSpringBean.setConfiguration(igniteConfiguration);
         if (logger.isDebugEnabled()) {
-            logger.debug("igniteConfiguration.cacheConfiguration={}", igniteConfiguration.getCacheConfiguration());
+            CacheConfiguration[] cc = igniteConfiguration.getCacheConfiguration();
+            for (CacheConfiguration c : cc) {
+                logger.debug("igniteConfiguration.cacheConfiguration={}", c);
+            }
             logger.debug("igniteConfiguration.getDiscoverySpi={}", igniteConfiguration.getDiscoverySpi());
             logger.debug("igniteConfiguration.getSslContextFactory={}", igniteConfiguration.getSslContextFactory());
         }
