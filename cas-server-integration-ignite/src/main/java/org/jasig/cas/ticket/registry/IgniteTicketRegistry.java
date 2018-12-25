@@ -224,11 +224,14 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
             logger.debug("Ticket-granting ticket timeout: [{}s]", this.ticketGrantingTicketTimeoutInSeconds);
             logger.debug("Service ticket timeout: [{}s]", this.serviceTicketTimeoutInSeconds);
         }
+        ignite.active();
         serviceTicketsCache = ignite.cache(servicesCacheName);
         ticketGrantingTicketsCache = ignite.cache(ticketsCacheName);
+
         //TODO (by Artyom R. Romanenko) kill?
         //ticketGrantingTicketsCache.getConfiguration(CacheConfiguration.class).setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf
         // (new Duration(TimeUnit.SECONDS, ticketGrantingTicketTimeoutInSeconds)));
+
     }
 
     @Override
@@ -245,7 +248,7 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-        ignite.active();
+
     }
 
     private static class ExternalKeyPredicate implements IgniteBiPredicate<String, TicketGrantingTicket>, Serializable {
