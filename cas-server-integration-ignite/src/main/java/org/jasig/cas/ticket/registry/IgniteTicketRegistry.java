@@ -1,5 +1,6 @@
 package org.jasig.cas.ticket.registry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.registry.encrypt.AbstractCrypticTicketRegistry;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -65,6 +66,9 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
     private long serviceTicketTimeoutInSeconds;
     @Autowired
     private Ignite ignite;
+
+    @Value("${ignite.storagePath:}")
+    private String igniteWorkDirectory;
 
     /**
      * @see #setSupportRegistryState(boolean)
@@ -224,7 +228,9 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
             logger.debug("Ticket-granting ticket timeout: [{}s]", this.ticketGrantingTicketTimeoutInSeconds);
             logger.debug("Service ticket timeout: [{}s]", this.serviceTicketTimeoutInSeconds);
         }
-        ignite.active();
+        if(StringUtils.isNotBlank(igniteWorkDirectory)) {
+            ignite.active(true);
+        }
         serviceTicketsCache = ignite.cache(servicesCacheName);
         ticketGrantingTicketsCache = ignite.cache(ticketsCacheName);
 
