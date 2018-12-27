@@ -13,5 +13,10 @@
         http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:property-placeholder location="cas.properties" ignore-resource-not-found="true"/>
+    <bean id="mockito" class="org.jasig.cas.ticket.registry.MockFactory"/>
+    <bean id="grantingTicketExpirationPolicy" class="org.jasig.cas.ticket.support.NeverExpiresExpirationPolicy"/>
+    <bean id="centralAuthenticationService" class="org.jasig.cas.CentralAuthenticationService" factory-bean="mockito" factory-method="mock">
+        <constructor-arg type="java.lang.Class" value="org.jasig.cas.CentralAuthenticationService"/>
+    </bean>
     <import resource="classpath:META-INF/spring/ignite-ticket-registry.xml"/>
 </beans>

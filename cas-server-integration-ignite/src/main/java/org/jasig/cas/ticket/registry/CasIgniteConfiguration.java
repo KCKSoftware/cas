@@ -4,10 +4,12 @@ import com.google.common.io.Files;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.IgniteSpringBean;
+import org.apache.ignite.cache.eviction.EvictionFilter;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.DataRegionConfiguration;
 import org.apache.ignite.configuration.DataStorageConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.events.EventType;
 import org.apache.ignite.spi.communication.CommunicationSpi;
 import org.apache.ignite.spi.discovery.DiscoverySpi;
 import org.apache.ignite.ssl.SslContextFactory;
@@ -24,7 +26,7 @@ import java.util.List;
 /**
  * @author Artem R. Romanenko
  * @version 20/12/2018
- * @since 4.28.KCK-SNAPSHOT
+ * @since 4.29.KCK-SNAPSHOT
  */
 @Configuration
 public class CasIgniteConfiguration {
@@ -35,7 +37,7 @@ public class CasIgniteConfiguration {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private DiscoverySpi ingiteDiscoverySpi;
+    private DiscoverySpi igniteDiscoverySpi;
     @Autowired
     private CommunicationSpi igniteCommunicatorSpi;
     @Value("#{@igniteCacheConfiguration}")
@@ -73,7 +75,7 @@ public class CasIgniteConfiguration {
     @Bean
     Ignite ignite() throws Exception {
         final IgniteSpringBean igniteSpringBean = new IgniteSpringBean();
-        final IgniteConfiguration igniteConfiguration = igniteConfiguration();
+        final IgniteConfiguration igniteConfiguration = buildConfiguration();
         igniteSpringBean.setConfiguration(igniteConfiguration);
         if (logger.isDebugEnabled()) {
             CacheConfiguration[] cc = igniteConfiguration.getCacheConfiguration();
@@ -83,16 +85,20 @@ public class CasIgniteConfiguration {
             logger.debug("igniteConfiguration.getDiscoverySpi={}", igniteConfiguration.getDiscoverySpi());
             logger.debug("igniteConfiguration.getSslContextFactory={}", igniteConfiguration.getSslContextFactory());
         }
+
+
         return igniteSpringBean;
     }
 
-    private IgniteConfiguration igniteConfiguration() throws Exception {
+    private IgniteConfiguration buildConfiguration() throws Exception {
         final IgniteConfiguration igniteConfiguration = new IgniteConfiguration();
-        igniteConfiguration.setDiscoverySpi(ingiteDiscoverySpi);
+        igniteConfiguration.setIgniteInstanceName("cas");
+        igniteConfiguration.setDiscoverySpi(igniteDiscoverySpi);
         igniteConfiguration.setCommunicationSpi(igniteCommunicatorSpi);
         final CacheConfiguration[] tmp
                 = igniteCacheConfiguration.toArray(new CacheConfiguration[igniteCacheConfiguration.size()]);
         igniteConfiguration.setCacheConfiguration(tmp);
+        igniteConfiguration.setIncludeEventTypes(EventType.EVT_CACHE_ENTRY_EVICTED);
 
         final String realWorkDirectory;
         if (StringUtils.isNotBlank(igniteWorkDirectory)) {

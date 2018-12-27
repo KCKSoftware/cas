@@ -160,4 +160,7 @@ public interface CentralAuthenticationService {
      */
     ProxyGrantingTicket createProxyGrantingTicket(@NotNull String serviceTicketId, @NotNull AuthenticationContext context)
             throws AuthenticationException, AbstractTicketException;
+
+
+    List<LogoutRequest> handlePostDestroy(TicketGrantingTicket ticket);
 }

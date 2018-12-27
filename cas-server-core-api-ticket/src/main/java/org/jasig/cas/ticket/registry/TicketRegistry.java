@@ -64,10 +64,11 @@ public interface TicketRegistry {
      */
     Collection<Ticket> getTickets();
 
+    Collection<TicketGrantingTicket> getTgTickets();
+
     TicketGrantingTicket getTgtByServiceTicket(String serviceTicket);
 
     TicketGrantingTicket getTgtByExternalId(String externalId);
-
 
 
 }

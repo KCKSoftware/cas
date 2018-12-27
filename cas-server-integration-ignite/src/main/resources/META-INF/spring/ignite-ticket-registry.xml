@@ -24,8 +24,10 @@
         <property name="joinTimeout" value="20000"/>
         <property name="localPort" value="${ignite.localPort:47500}"/>
         <property name="localPortRange" value="1"/>
-
     </bean>
+
+    <bean id="igniteTicketRegistryCleaner" class="org.jasig.cas.ticket.registry.IgniteTicketRegistryCleanerImpl"/>
+
 
     <util:list id="igniteCacheConfiguration" value-type="org.apache.ignite.configuration.CacheConfiguration">
         <bean class="org.apache.ignite.configuration.CacheConfiguration">
@@ -35,7 +37,6 @@
             <property name="writeSynchronizationMode"
                       value="${ignite.servicesCache.writeSynchronizationMode:FULL_SYNC}"/>
             <property name="expiryPolicyFactory">
-                <!--TODO duplicate-->
                 <bean class="javax.cache.expiry.CreatedExpiryPolicy" factory-method="factoryOf">
                     <constructor-arg>
                         <bean class="javax.cache.expiry.Duration">
@@ -45,20 +46,34 @@
                     </constructor-arg>
                 </bean>
             </property>
+            <property name="eagerTtl" value="true"/>
         </bean>
 
         <bean class="org.apache.ignite.configuration.CacheConfiguration">
             <property name="name" value="${ignite.ticketsCache.name:ticketGrantingTicketsCache}"/>
             <property name="cacheMode" value="${ignite.ticketsCache.cacheMode:REPLICATED}"/>
             <property name="atomicityMode" value="${ignite.ticketsCache.atomicityMode:TRANSACTIONAL}"/>
-            <property name="writeSynchronizationMode"
-                      value="${ignite.ticketsCache.writeSynchronizationMode:FULL_SYNC}"/>
+            <property name="writeSynchronizationMode" value="${ignite.ticketsCache.writeSynchronizationMode:FULL_SYNC}"/>
+            <property name="expiryPolicyFactory">
+                <bean class="javax.cache.expiry.CreatedExpiryPolicy" factory-method="factoryOf">
+                    <constructor-arg>
+                        <bean class="javax.cache.expiry.Duration">
+                            <constructor-arg value="SECONDS"/>
+                            <constructor-arg value="${tgt.maxTimeToLiveInSeconds:28800}"/>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+            </property>
         </bean>
     </util:list>
+    <bean id="transactionManager" class="org.apache.ignite.transactions.spring.SpringTransactionManager">
+        <property name="igniteInstanceName" value="cas"/>
+    </bean>
+
     <bean id="igniteAddresses" class="org.springframework.util.StringUtils"
           factory-method="commaDelimitedListToStringArray">
         <constructor-arg type="java.lang.String" value="${ignite.adresses:localhost:47500}"/>
     </bean>
     <bean class="org.jasig.cas.ticket.registry.CasIgniteConfiguration"/>
-    <bean id ="igniteTicketRegistry" class="org.jasig.cas.ticket.registry.IgniteTicketRegistry"/>
+    <bean id="igniteTicketRegistry" class="org.jasig.cas.ticket.registry.IgniteTicketRegistry"/>
 </beans>

@@ -1,6 +1,8 @@
 package org.jasig.cas.ticket.registry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ignite.cache.query.Query;
+import org.apache.ignite.lang.IgniteClosure;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.ticket.registry.encrypt.AbstractCrypticTicketRegistry;
 import org.jasig.cas.ticket.ServiceTicket;
@@ -22,6 +24,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -136,6 +139,12 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
         return ticket;
     }
 
+    private static class ValueExtractor<T> implements   IgniteClosure<Cache.Entry<String, T>, T>{
+        @Override
+        public T apply(Cache.Entry<String, T> stringTEntry) {
+            return stringTEntry.getValue();
+        }
+    }
     private static class AllStPredicate implements IgniteBiPredicate<String, ServiceTicket>, Serializable {
         private static final long serialVersionUID = 1267450321343892521L;
 
@@ -175,7 +184,6 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
             return decodeTickets(allTickets);
         }
     }
-
 
 
     @Override
@@ -247,7 +255,7 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
-
+        ignite.services().deployClusterSingleton(IgniteTicketRegistryCleanerRunner.SERVICE_NAME, new IgniteTicketRegistryCleanerRunner());
     }
 
     private static class ExternalKeyPredicate implements IgniteBiPredicate<String, TicketGrantingTicket>, Serializable {
@@ -318,7 +326,16 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
                     throw new IllegalStateException("Multiple tgt for externalId '" + externalId + "'");
             }
         }
+    }
 
-
+    @Override
+    public Collection<TicketGrantingTicket> getTgTickets() {
+        //TODO (by Artyom R. Romanenko) should make transaction support
+        List<TicketGrantingTicket> result;
+        try (final QueryCursor<TicketGrantingTicket> cursorTgt = ticketGrantingTicketsCache.query(new ScanQuery<>(new AllTgtPredicate()),new ValueExtractor<TicketGrantingTicket>()))
+        {
+            result = new ArrayList<>(cursorTgt.getAll());
+        }
+        return result;
     }
 }

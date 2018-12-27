@@ -52,12 +52,17 @@ public final class MockOnlyOneTicketRegistry implements TicketRegistry {
     }
 
     @Override
+    public Collection<TicketGrantingTicket> getTgTickets() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public TicketGrantingTicket getTgtByServiceTicket(String serviceTicket) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public TicketGrantingTicket getTgtByExternalId(String externalId) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

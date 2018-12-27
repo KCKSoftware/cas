@@ -157,4 +157,9 @@ public abstract class AbstractTicketRegistry implements TicketRegistry, TicketRe
     public TicketGrantingTicket getTgtByServiceTicket(String serviceTicket) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Collection<TicketGrantingTicket> getTgTickets() {
+        throw new UnsupportedOperationException();
+    }
 }
