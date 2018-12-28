@@ -1,6 +1,7 @@
 package org.jasig.cas.ticket.registry;
 
 import org.apache.ignite.Ignite;
+import org.apache.ignite.binary.BinaryObject;
 import org.apache.ignite.events.CacheEvent;
 import org.apache.ignite.events.EventType;
 import org.apache.ignite.lang.IgnitePredicate;
@@ -47,28 +48,32 @@ class IgniteTicketRegistryCleanerImpl implements IgniteTicketRegistryCleaner, In
         if (!(ticketExpirationPolicy instanceof NeverExpiresExpirationPolicy)) {
             throw new IllegalStateException("Tgt expiration policy must be NeverExpiresExpirationPolicy");
         }
-        if(startDelay>0)
-        {
+        if (startDelay > 0) {
             throw new IllegalStateException("Property 'ticket.registry.cleaner.startdelay' must be less 0 in order disable default ticket cleaner");
         }
     }
 
     static class TicketExpireEventListener implements IgnitePredicate<CacheEvent> {
+        private final static Logger LOG = LoggerFactory.getLogger(TicketExpireEventListener.class);
         @SpringResource(resourceClass = CentralAuthenticationService.class)
         private transient CentralAuthenticationService centralAuthenticationService;
 
         @Override
         public boolean apply(CacheEvent event) {
-            Object oldValue = event.oldValue();
-            if (oldValue instanceof ServiceTicket) {
-                ServiceTicket st = (ServiceTicket) oldValue;
-                logger.debug("Cleaning up expired service ticket [{}]", st.getId());
-            } else if (oldValue instanceof TicketGrantingTicket) {
-                TicketGrantingTicket tgt = (TicketGrantingTicket) oldValue;
-                centralAuthenticationService.handlePostDestroy(tgt);
-                logger.debug("Cleaning up expired ticket granting ticket [{}]", tgt.getId());
+            Object oldValueWrapper = event.oldValue();
+            if (oldValueWrapper instanceof BinaryObject) {
+                Object oldValue = ((BinaryObject) oldValueWrapper).deserialize();
+                if (oldValue instanceof ServiceTicket) {
+                    ServiceTicket st = (ServiceTicket) oldValue;
+                    logger.debug("Cleaning up expired service ticket [{}]", st.getId());
+                } else if (oldValue instanceof TicketGrantingTicket) {
+                    TicketGrantingTicket tgt = (TicketGrantingTicket) oldValue;
+                    centralAuthenticationService.handlePostDestroy(tgt);
+                    logger.debug("Cleaning up expired ticket granting ticket [{}]", tgt.getId());
+                }
+            } else {
+                LOG.error("Unknown type " + oldValueWrapper);
             }
-
             return true;
         }
 
