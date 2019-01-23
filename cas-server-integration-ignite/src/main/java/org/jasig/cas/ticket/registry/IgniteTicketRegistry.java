@@ -224,20 +224,7 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
      */
     @PostConstruct
     public void init() {
-        logger.info("Setting up Ignite Ticket Registry...");
-        if (logger.isDebugEnabled()) {
-            logger.debug("Ticket-granting ticket timeout: [{}s]", this.ticketGrantingTicketTimeoutInSeconds);
-            logger.debug("Service ticket timeout: [{}s]", this.serviceTicketTimeoutInSeconds);
-        }
-        if (StringUtils.isNotBlank(igniteWorkDirectory)) {
-            ignite.active(true);
-        }
-        serviceTicketsCache = ignite.cache(servicesCacheName);
-        ticketGrantingTicketsCache = ignite.cache(ticketsCacheName);
 
-        //TODO (by Artyom R. Romanenko) kill?
-        //ticketGrantingTicketsCache.getConfiguration(CacheConfiguration.class).setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf
-        // (new Duration(TimeUnit.SECONDS, ticketGrantingTicketTimeoutInSeconds)));
 
     }
 
@@ -255,6 +242,20 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
 
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
+        logger.info("Setting up Ignite Ticket Registry...");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Ticket-granting ticket timeout: [{}s]", this.ticketGrantingTicketTimeoutInSeconds);
+            logger.debug("Service ticket timeout: [{}s]", this.serviceTicketTimeoutInSeconds);
+        }
+        if (StringUtils.isNotBlank(igniteWorkDirectory)) {
+            ignite.active(true);
+        }
+        serviceTicketsCache = ignite.cache(servicesCacheName);
+        ticketGrantingTicketsCache = ignite.cache(ticketsCacheName);
+
+        //TODO (by Artyom R. Romanenko) kill?
+        //ticketGrantingTicketsCache.getConfiguration(CacheConfiguration.class).setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf
+        // (new Duration(TimeUnit.SECONDS, ticketGrantingTicketTimeoutInSeconds)));
         ignite.services().deployClusterSingleton(IgniteTicketRegistryCleanerRunner.SERVICE_NAME, new IgniteTicketRegistryCleanerRunner());
     }
 
