@@ -20,6 +20,7 @@ import org.apache.ignite.lang.IgniteBiPredicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
@@ -69,6 +70,9 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
     private long serviceTicketTimeoutInSeconds;
     @Autowired
     private Ignite ignite;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Value("${ignite.storagePath:}")
     private String igniteWorkDirectory;
@@ -257,6 +261,7 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
         //ticketGrantingTicketsCache.getConfiguration(CacheConfiguration.class).setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf
         // (new Duration(TimeUnit.SECONDS, ticketGrantingTicketTimeoutInSeconds)));
         ignite.services().deployClusterSingleton(IgniteTicketRegistryCleanerRunner.SERVICE_NAME, new IgniteTicketRegistryCleanerRunner());
+        eventPublisher.publishEvent(new IgniteReadyEvent(this));
     }
 
     private static class ExternalKeyPredicate implements IgniteBiPredicate<String, TicketGrantingTicket>, Serializable {
