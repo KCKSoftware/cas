@@ -5,33 +5,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.jasig.cas.authentication.Authentication;
 import org.jasig.cas.authentication.principal.Service;
+import org.jasig.cas.ticket.proxy.ProxyGrantingTicket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.jasig.cas.ticket.proxy.ProxyGrantingTicket;
-
-import javax.persistence.OneToMany;
-import javax.persistence.FetchType;
-import javax.validation.constraints.Null;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * Concrete implementation of a TicketGrantingTicket. A TicketGrantingTicket is
@@ -58,37 +39,31 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
      * Logger instance.
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(TicketGrantingTicketImpl.class);
-
-    /**
-     * The authenticated object for which this ticket was generated for.
-     */
-    @Lob
-    @Column(name = "AUTHENTICATION", nullable = false, length = Integer.MAX_VALUE)
-    private Authentication authentication;
-
-    /**
-     * Flag to enforce manual expiration.
-     */
-    @Column(name = "EXPIRED", nullable = false)
-    private Boolean expired = Boolean.FALSE;
-
-    /**
-     * Service that produced a proxy-granting ticket.
-     */
-    @Column(name = "PROXIED_BY", nullable = true, length = Integer.MAX_VALUE)
-    private Service proxiedBy;
-
     /**
      * The services associated to this ticket.
      */
     @Lob
     @Column(name = "SERVICES_GRANTED_ACCESS_TO", nullable = false, length = Integer.MAX_VALUE)
     private final HashMap<String, Service> services = new HashMap<>();
-
     @Lob
     @Column(name = "SUPPLEMENTAL_AUTHENTICATIONS", nullable = false, length = Integer.MAX_VALUE)
     private final ArrayList<Authentication> supplementalAuthentications = new ArrayList<>();
-
+    /**
+     * The authenticated object for which this ticket was generated for.
+     */
+    @Lob
+    @Column(name = "AUTHENTICATION", nullable = false, length = Integer.MAX_VALUE)
+    private Authentication authentication;
+    /**
+     * Flag to enforce manual expiration.
+     */
+    @Column(name = "EXPIRED", nullable = false)
+    private Boolean expired = Boolean.FALSE;
+    /**
+     * Service that produced a proxy-granting ticket.
+     */
+    @Column(name = "PROXIED_BY", nullable = true, length = Integer.MAX_VALUE)
+    private Service proxiedBy;
     /**
      * The PGTs associated to this ticket.
      */
@@ -96,8 +71,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
     private Set<ProxyGrantingTicket> proxyGrantingTickets = new HashSet<>();
 
 
-
-    @Column(name="EXTERNAL_ID")
+    @Column(name = "EXTERNAL_ID")
     private String externalId;
 
     /**
@@ -145,6 +119,19 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
         this(id, null, null, authentication, policy);
     }
 
+    /**
+     * Normalize the path of a service by removing the query string and everything after a semi-colon.
+     *
+     * @param service the service to normalize
+     * @return the normalized path
+     */
+    private static String normalizePath(final Service service) {
+        String path = service.getId();
+        path = StringUtils.substringBefore(path, "?");
+        path = StringUtils.substringBefore(path, ";");
+        path = StringUtils.substringBefore(path, "#");
+        return path;
+    }
 
     @Override
     public final Authentication getAuthentication() {
@@ -166,6 +153,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
         final ServiceTicket serviceTicket = new ServiceTicketImpl(id, this,
                 service, this.getCountOfUses() == 0 || credentialsProvided,
                 expirationPolicy);
+        LOGGER.debug("ServiceTicket with ID = [{}] for TGT = [{}]", id, getId());
 
         updateServiceAndTrackSession(serviceTicket.getId(), service, onlyTrackMostRecentSession);
         return serviceTicket;
@@ -200,20 +188,6 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
             }
         }
         this.services.put(id, service);
-    }
-
-    /**
-     * Normalize the path of a service by removing the query string and everything after a semi-colon.
-     *
-     * @param service the service to normalize
-     * @return the normalized path
-     */
-    private static String normalizePath(final Service service) {
-        String path = service.getId();
-        path = StringUtils.substringBefore(path, "?");
-        path = StringUtils.substringBefore(path, ";");
-        path = StringUtils.substringBefore(path, "#");
-        return path;
     }
 
     /**
