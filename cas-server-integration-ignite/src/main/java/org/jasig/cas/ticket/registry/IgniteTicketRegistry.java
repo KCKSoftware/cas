@@ -101,6 +101,24 @@ public final class IgniteTicketRegistry extends AbstractCrypticTicketRegistry im
         } else {
             throw new IllegalArgumentException("Invalid ticket type " + ticket);
         }
+        Collection<Ticket> tickets = getTickets();
+        if (tickets != null){
+            for (Ticket t : tickets) {
+                if (t instanceof ServiceTicket) {
+                    logger.debug("ST in cache {}, part of TGT {}", t.getId(),
+                                    t.getGrantingTicket() != null ?
+                                            t.getGrantingTicket().getId() :
+                                            "empty_TGT");
+                } else if (t instanceof TicketGrantingTicket) {
+                    logger.debug("TGT in cache {}, has ST's {}", t.getId(),
+                                    ((TicketGrantingTicket) t).getServices() != null ?
+                                            ((TicketGrantingTicket) t).getServices().keySet().toString() :
+                                            "empty_services");
+                } else {
+                    logger.debug("Ticket in cache {}", t != null ? t.getId() : "empty_ticket");
+                }
+            }
+        }
     }
 
     @Override

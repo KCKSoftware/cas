@@ -187,6 +187,7 @@ public class TicketGrantingTicketImpl extends AbstractTicket implements TicketGr
                 }
             }
         }
+        LOGGER.debug("Services of TGT [{}] before update [{}]", getId(), services.keySet().toString());
         this.services.put(id, service);
     }
 

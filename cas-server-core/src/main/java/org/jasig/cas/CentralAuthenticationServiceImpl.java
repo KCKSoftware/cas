@@ -146,7 +146,7 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
     @Metered(name = "GRANT_SERVICE_TICKET_METER")
     @Counted(name = "GRANT_SERVICE_TICKET_COUNTER", monotonic = true)
     @Override
-    public ServiceTicket grantServiceTicket(
+    public synchronized ServiceTicket grantServiceTicket(
             final String ticketGrantingTicketId,
             final Service service, final AuthenticationContext context)
             throws AuthenticationException, AbstractTicketException {

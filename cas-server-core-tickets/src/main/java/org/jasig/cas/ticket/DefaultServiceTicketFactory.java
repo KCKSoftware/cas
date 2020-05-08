@@ -66,6 +66,7 @@ public class DefaultServiceTicketFactory implements ServiceTicketFactory {
                 this.serviceTicketExpirationPolicy,
                 credentialsProvided,
                 this.onlyTrackMostRecentSession);
+        logger.debug("TGT [{}] for now contains ST's [{}] ", ticketGrantingTicket.getId(), ticketGrantingTicket.getServices().keySet().toString());
         return (T) serviceTicket;
     }
 
