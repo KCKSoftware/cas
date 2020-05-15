@@ -3,6 +3,7 @@ package org.jasig.cas;
 import java.util.Collection;
 
 import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
 import org.jasig.cas.ticket.registry.TicketRegistry;
 
 /**
@@ -48,5 +49,20 @@ public final class MockOnlyOneTicketRegistry implements TicketRegistry {
     @Override
     public Collection<Ticket> getTickets() {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public Collection<TicketGrantingTicket> getTgTickets() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TicketGrantingTicket getTgtByServiceTicket(String serviceTicket) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TicketGrantingTicket getTgtByExternalId(String externalId) {
+        throw new UnsupportedOperationException();
     }
 }

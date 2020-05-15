@@ -12,6 +12,7 @@ import org.jasig.cas.authentication.principal.DefaultPrincipalFactory;
 import org.jasig.cas.authentication.principal.PrincipalFactory;
 import org.jasig.cas.authentication.principal.Service;
 import org.jasig.cas.logout.LogoutManager;
+import org.jasig.cas.logout.LogoutRequest;
 import org.jasig.cas.services.RegisteredService;
 import org.jasig.cas.services.ServiceContext;
 import org.jasig.cas.services.ServicesManager;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * An abstract implementation of the {@link CentralAuthenticationService} that provides access to
@@ -313,4 +315,6 @@ public abstract class AbstractCentralAuthenticationService implements CentralAut
     public void setLogoutManager(final LogoutManager logoutManager) {
         this.logoutManager = logoutManager;
     }
+
+
 }

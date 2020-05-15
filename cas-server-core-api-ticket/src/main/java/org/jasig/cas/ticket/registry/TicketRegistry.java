@@ -3,6 +3,8 @@ package org.jasig.cas.ticket.registry;
 import java.util.Collection;
 
 import org.jasig.cas.ticket.Ticket;
+import org.jasig.cas.ticket.TicketGrantingTicket;
+
 
 /**
  * Interface for a registry that stores tickets. The underlying registry can be
@@ -12,7 +14,6 @@ import org.jasig.cas.ticket.Ticket;
  * more sophisticated strategy such as LRU.
  *
  * @author Scott Battaglia
-
  * @since 3.0.0
  * <p>
  * This is a published and supported CAS Server 3 API.
@@ -32,8 +33,8 @@ public interface TicketRegistry {
      * match the expected class, an InvalidTicketException is thrown.
      *
      * @param ticketId the id of the ticket we wish to retrieve.
-     * @param clazz The expected class of the ticket we wish to retrieve.
-     * @param <T> the generic ticket type to return that extends {@link Ticket}
+     * @param clazz    The expected class of the ticket we wish to retrieve.
+     * @param <T>      the generic ticket type to return that extends {@link Ticket}
      * @return the requested ticket.
      */
     <T extends Ticket> T getTicket(String ticketId, Class<? extends Ticket> clazz);
@@ -62,4 +63,12 @@ public interface TicketRegistry {
      * might or might not be valid i.e. expired.
      */
     Collection<Ticket> getTickets();
+
+    Collection<TicketGrantingTicket> getTgTickets();
+
+    TicketGrantingTicket getTgtByServiceTicket(String serviceTicket);
+
+    TicketGrantingTicket getTgtByExternalId(String externalId);
+
+
 }

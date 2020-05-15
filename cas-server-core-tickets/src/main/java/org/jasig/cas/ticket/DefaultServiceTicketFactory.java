@@ -59,12 +59,14 @@ public class DefaultServiceTicketFactory implements ServiceTicketFactory {
         }
 
         final String ticketId = serviceTicketUniqueTicketIdGenerator.getNewTicketId(ServiceTicket.PREFIX);
+        logger.debug("Generate ticket with ID = [{}] ", ticketId);
         final ServiceTicket serviceTicket = ticketGrantingTicket.grantServiceTicket(
                 ticketId,
                 service,
                 this.serviceTicketExpirationPolicy,
                 credentialsProvided,
                 this.onlyTrackMostRecentSession);
+        logger.debug("TGT [{}] for now contains ST's [{}] ", ticketGrantingTicket.getId(), ticketGrantingTicket.getServices().keySet().toString());
         return (T) serviceTicket;
     }
 

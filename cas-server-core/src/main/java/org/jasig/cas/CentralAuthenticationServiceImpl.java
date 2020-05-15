@@ -114,18 +114,29 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
         try {
             logger.debug("Removing ticket [{}] from registry...", ticketGrantingTicketId);
             final TicketGrantingTicket ticket = getTicket(ticketGrantingTicketId, TicketGrantingTicket.class);
-            logger.debug("Ticket found. Processing logout requests and then deleting the ticket...");
-            final List<LogoutRequest> logoutRequests = logoutManager.performLogout(ticket);
+
             this.ticketRegistry.deleteTicket(ticketGrantingTicketId);
-
-            doPublishEvent(new CasTicketGrantingTicketDestroyedEvent(this, ticket));
-
-            return logoutRequests;
+            handlePostDestroy(ticket);
         } catch (final InvalidTicketException e) {
             logger.debug("TicketGrantingTicket [{}] cannot be found in the ticket registry.", ticketGrantingTicketId);
         }
         return Collections.emptyList();
     }
+
+    @Override
+    public List<LogoutRequest> handlePostDestroy(TicketGrantingTicket ticket) {
+        try {
+            logger.debug("Ticket found. Processing logout requests and then deleting the ticket...");
+            final List<LogoutRequest> logoutRequests = logoutManager.performLogout(ticket);
+            doPublishEvent(new CasTicketGrantingTicketDestroyedEvent(this, ticket));
+
+            return logoutRequests;
+        } catch (final Exception e) {
+            logger.debug("Handling post destroy action for ticketGrantingTicket [" + ticket.getId() + "]  finished with exception ", e);
+        }
+        return Collections.emptyList();
+    }
+
 
     @Audit(
             action = "SERVICE_TICKET",
@@ -135,7 +146,7 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
     @Metered(name = "GRANT_SERVICE_TICKET_METER")
     @Counted(name = "GRANT_SERVICE_TICKET_COUNTER", monotonic = true)
     @Override
-    public ServiceTicket grantServiceTicket(
+    public synchronized ServiceTicket grantServiceTicket(
             final String ticketGrantingTicketId,
             final Service service, final AuthenticationContext context)
             throws AuthenticationException, AbstractTicketException {
@@ -205,7 +216,7 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
      * @throws MixedPrincipalException in case there is a principal mismatch between TGT and the current authN.
      */
     private Authentication evaluatePossibilityOfMixedPrincipals(final AuthenticationContext context,
-                                                                       final TicketGrantingTicket ticketGrantingTicket)
+                                                                final TicketGrantingTicket ticketGrantingTicket)
             throws MixedPrincipalException {
         Authentication currentAuthentication = null;
         if (context != null) {
@@ -214,7 +225,7 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
                 final Authentication original = ticketGrantingTicket.getAuthentication();
                 if (!currentAuthentication.getPrincipal().equals(original.getPrincipal())) {
                     logger.debug("Principal associated with current authentication {} does not match "
-                            + " the principal {} associated with the original authentication",
+                                    + " the principal {} associated with the original authentication",
                             currentAuthentication.getPrincipal(), original.getPrincipal());
                     throw new MixedPrincipalException(
                             currentAuthentication, currentAuthentication.getPrincipal(), original.getPrincipal());
@@ -364,8 +375,7 @@ public class CentralAuthenticationServiceImpl extends AbstractCentralAuthenticat
             final RegisteredServiceAttributeReleasePolicy attributePolicy = registeredService.getAttributeReleasePolicy();
             logger.debug("Attribute policy [{}] is associated with service [{}]", attributePolicy, registeredService);
 
-            @SuppressWarnings("unchecked")
-            final Map<String, Object> attributesToRelease = attributePolicy != null
+            @SuppressWarnings("unchecked") final Map<String, Object> attributesToRelease = attributePolicy != null
                     ? attributePolicy.getAttributes(principal) : Collections.EMPTY_MAP;
 
             final String principalId = registeredService.getUsernameAttributeProvider().resolveUsername(principal, service);

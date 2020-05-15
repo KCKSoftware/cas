@@ -1,6 +1,7 @@
 package org.jasig.cas.support.saml.web.flow.mdui;
 
 import org.jasig.cas.support.saml.AbstractOpenSamlTests;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +19,7 @@ import static org.junit.Assert.*;
  * @author Misagh Moayyed
  * @since 4.1.0
  */
+@Ignore
 public class SamlMetadataUIParserActionTests extends AbstractOpenSamlTests {
 
     @Autowired

@@ -112,4 +112,11 @@ public interface TicketGrantingTicket extends Ticket {
     */
     Service getProxiedBy();
 
+    /**
+     *
+     * @return external id
+     * @since 4.2.8.KCK
+     */
+    String getExternalId();
+
 }

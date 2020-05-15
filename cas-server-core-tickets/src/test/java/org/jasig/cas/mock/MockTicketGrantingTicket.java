@@ -54,6 +54,7 @@ public class MockTicketGrantingTicket implements TicketGrantingTicket {
     private final Map<String, Service> services = new HashMap<>();
 
     private HashSet<ProxyGrantingTicket> proxyGrantingTickets = new HashSet<>();
+    private String externalId;
 
     public MockTicketGrantingTicket(final String principal, final Credential c, final Map attributes) {
         id = ID_GENERATOR.getNewTicketId("TGT");
@@ -95,6 +96,15 @@ public class MockTicketGrantingTicket implements TicketGrantingTicket {
     @Override
     public Service getProxiedBy() {
         return this.proxiedBy;
+    }
+
+    @Override
+    public String getExternalId() {
+        return this.externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     @Override
@@ -184,4 +194,5 @@ public class MockTicketGrantingTicket implements TicketGrantingTicket {
                 .append(this.proxyGrantingTickets)
                 .toHashCode();
     }
+
 }

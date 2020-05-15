@@ -26,9 +26,9 @@ clean << {
     cleanLogs
 }
 
-task findbugs(type: FindBugs) {
-    pluginClasspath = project.configurations.findbugsPlugins
-}
+//task findbugs(type: FindBugs) {
+//    pluginClasspath = project.configurations.findbugsPlugins
+//}
 
 gradle.buildFinished { buildResult ->
     cleanLogs

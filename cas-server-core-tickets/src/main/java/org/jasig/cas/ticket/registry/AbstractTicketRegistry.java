@@ -147,4 +147,19 @@ public abstract class AbstractTicketRegistry implements TicketRegistry, TicketRe
      * @return the boolean
      */
     public abstract boolean deleteSingleTicket(String ticketId);
+
+    @Override
+    public TicketGrantingTicket getTgtByExternalId(String externalId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public TicketGrantingTicket getTgtByServiceTicket(String serviceTicket) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Collection<TicketGrantingTicket> getTgTickets() {
+        throw new UnsupportedOperationException();
+    }
 }
